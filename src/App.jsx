@@ -101,7 +101,7 @@ const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
   const R = 3958.8; // miles
   const toRad = (deg) => (deg * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lat2 - lon1);
+  const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
@@ -260,7 +260,15 @@ const LanguageSelector = ({ language, setLanguage }) => {
   );
 };
 
-const KioskPanel_NEW = ({ kiosk, t, language, showDriving }) => {
+const KioskPanel_NEW = ({
+  kiosk,
+  t,
+  language,
+  showDriving,
+  showLocation,
+  showAddress,
+  showPlace,
+}) => {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   const walkingUrl = isIOS
@@ -293,15 +301,25 @@ const KioskPanel_NEW = ({ kiosk, t, language, showDriving }) => {
       <div className="p-5">
         <div className="flex justify-between items-start gap-4">
           <div className="flex-grow">
-            <h3 className="text-lg font-bold text-gray-900">
-              {kiosk.locationName}
-            </h3>
-            {kiosk.place && (
-              <p className="text-sm text-gray-500 mt-1">{kiosk.place}</p>
+            {showLocation && (
+              <h3 className="text-lg font-bold text-gray-900">
+                {kiosk.locationName}
+              </h3>
             )}
-            <p className="text-sm text-gray-600 mt-1">
-              {kiosk.address}, {kiosk.zip}
-            </p>
+            {showPlace && kiosk.place && (
+              <>
+                {!showLocation ? (
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {kiosk.place}
+                  </h3>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-1">{kiosk.place}</p>
+                )}
+              </>
+            )}
+            {showAddress && (
+              <p className="text-sm text-gray-600 mt-1">{kiosk.address}</p>
+            )}
           </div>
           {distanceValue !== null && (
             <span className="flex-shrink-0 text-sm font-semibold text-blue-800 bg-blue-100 px-3 py-1.5 rounded-full">
@@ -389,17 +407,25 @@ const App = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isQrSearch, setIsQrSearch] = useState(false);
   const [showDriving, setShowDriving] = useState(true);
-  const [drivingParamExists, setDrivingParamExists] = useState(false);
+  const [showLocation, setShowLocation] = useState(true);
+  const [showAddress, setShowAddress] = useState(true);
+  const [showPlace, setShowPlace] = useState(true);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const kioskIdsFromUrl = urlParams.get("kiosks")?.split(",");
-    const drivingParam = urlParams.get("driving");
 
-    if (drivingParam !== null) {
-      setDrivingParamExists(true);
-      setShowDriving(drivingParam !== "0");
-    }
+    // URL-based visibility toggles
+    const drivingParam = urlParams.get("driving");
+    const locationParam = urlParams.get("location");
+    const addressParam = urlParams.get("address");
+    const placeParam = urlParams.get("place");
+
+    // Default to true, set to false if param is '0'
+    setShowDriving(drivingParam !== "0");
+    setShowLocation(locationParam !== "0");
+    setShowAddress(addressParam !== "0");
+    setShowPlace(placeParam !== "0");
 
     const fetchAllKioskData = async () => {
       try {
@@ -432,7 +458,11 @@ const App = () => {
         const recentKiosks = data.filter((kiosk) => {
           if (!kiosk.timestamp) return false;
           return new Date(kiosk.timestamp) > tenDaysAgo;
-        });
+        }).map(kiosk => ({
+          ...kiosk,
+          lat: parseFloat(kiosk.lat),
+          lon: parseFloat(kiosk.lon),
+        }));
 
         setAllKiosks(recentKiosks);
 
@@ -555,6 +585,9 @@ const App = () => {
               t={t}
               language={language}
               showDriving={showDriving}
+              showLocation={showLocation}
+              showAddress={showAddress}
+              showPlace={showPlace}
             />
           ))}
         </div>
@@ -593,21 +626,6 @@ const App = () => {
           </h1>
           <p className="text-lg text-gray-600 mt-2">{t.subtitle}</p>
         </header>
-
-        {/* QR-mode driving toggle */}
-        {isQrSearch && !drivingParamExists && (
-          <div className="flex justify-center items-center mb-4">
-            <label className="inline-flex items-center gap-2 text-sm text-gray-600">
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
-                checked={showDriving}
-                onChange={(e) => setShowDriving(e.target.checked)}
-              />
-              <span>{t.showDrivingToggleLabel}</span>
-            </label>
-          </div>
-        )}
 
         <main>
           {!isQrSearch && (
