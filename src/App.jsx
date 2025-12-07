@@ -256,8 +256,15 @@ const LanguageSelector = ({ language, setLanguage }) => {
 };
 
 const KioskPanel = ({ kiosk, t, language, showDriving }) => {
-  const walkingUrl = `https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lon}&travelmode=walking`;
-  const drivingUrl = `https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lon}&travelmode=driving`;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  const walkingUrl = isIOS
+    ? `http://maps.apple.com/?daddr=${kiosk.lat},${kiosk.lon}&dirflg=w`
+    : `https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lon}&travelmode=walking`;
+
+  const drivingUrl = isIOS
+    ? `http://maps.apple.com/?daddr=${kiosk.lat},${kiosk.lon}&dirflg=d`
+    : `https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lon}&travelmode=driving`;
 
   const isFrench = language === "fr";
   const distanceValue =
