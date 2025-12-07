@@ -161,7 +161,7 @@ const SearchControls = ({ onSearch, isLoading, t }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-6 sticky top-4 z-10">
+    <div className="bg-white p-4 rounded-lg shadow-md mb-6">
       <form onSubmit={handleZipSearchSubmit}>
         <div className="mb-3">
           <label
@@ -256,7 +256,7 @@ const LanguageSelector = ({ language, setLanguage }) => {
   );
 };
 
-const KioskPanel = ({ kiosk, t, language, showDriving }) => {
+const KioskPanel_NEW = ({ kiosk, t, language, showDriving }) => {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   const walkingUrl = isIOS
@@ -284,83 +284,94 @@ const KioskPanel = ({ kiosk, t, language, showDriving }) => {
     : "text-green-600";
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 transform transition-all hover:shadow-lg">
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2 gap-3">
-          <h3 className="text-lg font-bold text-gray-800">
-            {kiosk.locationName}
-          </h3>
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200/80 transition-all hover:shadow-lg hover:border-gray-300">
+      {/* Main Info Section */}
+      <div className="p-5">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex-grow">
+            <h3 className="text-lg font-bold text-gray-900">
+              {kiosk.locationName}
+            </h3>
+            {kiosk.place && (
+              <p className="text-sm text-gray-500 mt-1">{kiosk.place}</p>
+            )}
+            <p className="text-sm text-gray-600 mt-1">
+              {kiosk.address}, {kiosk.zip}
+            </p>
+          </div>
           {distanceValue !== null && (
-            <span className="flex-shrink-0 text-sm font-medium text-blue-700 bg-blue-100 px-3 py-1 rounded-full whitespace-nowrap">
+            <span className="flex-shrink-0 text-sm font-semibold text-blue-800 bg-blue-100 px-3 py-1.5 rounded-full whitespace-nowrap">
               {distanceValue.toFixed(1)} {unit}
             </span>
           )}
         </div>
-        {kiosk.place && (
-          <p className="text-gray-600 text-sm mb-3">{kiosk.place}</p>
-        )}
-        <p className="text-gray-600 text-sm mb-3">
-          {kiosk.address}, {kiosk.zip}
-        </p>
 
-        {/* Tiny icon-only buttons, same line */}
-        <div className="flex justify-end gap-2 mb-4">
-          <a
-            href={walkingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white hover:bg-blue-600 shadow"
-            aria-label={t.walkingDirections}
+        {kiosk.hasConnectivityWarning && (
+          <div
+            className="bg-yellow-50 border border-yellow-300 text-yellow-800 px-3 py-2 rounded-lg mt-4"
+            role="alert"
           >
-            <MdDirectionsWalk className="w-5 h-5" />
-          </a>
-          {showDriving && (
-            <a
-              href={drivingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white hover:bg-gray-800 shadow"
-              aria-label={t.drivingDirections}
-            >
-              <MdDirectionsCar className="w-5 h-5" />
-            </a>
-          )}
-        </div>
+            <p className="text-xs font-medium text-center">
+              {t.warning_connectivity}
+            </p>
+          </div>
+        )}
+      </div>
 
-        <div className="border-t border-gray-100 pt-4">
-          {kiosk.hasConnectivityWarning && (
-            <div
-              className="bg-yellow-100 border border-yellow-300 text-yellow-800 px-3 py-2 rounded-md mb-4"
-              role="alert"
-            >
-              <p className="text-sm font-medium text-center">
-                {t.warning_connectivity}
-              </p>
-            </div>
-          )}
-          <div className="grid grid-cols-2 gap-4 text-center">
-            <div>
-              <span className={`block text-2xl font-bold ${chargerColor}`}>
+      {/* Footer with Stats and Actions */}
+      <div className="bg-gray-50/70 px-5 py-4 border-t border-gray-200/80">
+        <div className="flex justify-between items-center gap-4">
+          {/* Stats */}
+          <div className="flex gap-5 text-center">
+            <div className="flex flex-col items-center justify-center w-24">
+              <span className={`text-2xl font-bold ${chargerColor}`}>
                 {chargerCount}
               </span>
-              <span className="block text-xs font-medium text-gray-500 uppercase tracking-wide min-h-[2.5em] flex items-center justify-center">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
                 {t.availableChargers}
               </span>
             </div>
-            <div>
-              <span className="block text-2xl font-bold text-gray-700">
+            <div className="flex flex-col items-center justify-center w-24">
+              <span className="text-2xl font-bold text-gray-800">
                 {kiosk.availableSlots}
               </span>
-              <span className="block text-xs font-medium text-gray-500 uppercase tracking-wide min-h-[2.5em] flex items-center justify-center">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">
                 {t.availableSlots}
               </span>
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <a
+              href={walkingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+              aria-label={t.walkingDirections}
+            >
+              <MdDirectionsWalk className="w-6 h-6" />
+            </a>
+            {showDriving && (
+              <a
+                href={drivingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center h-10 w-10 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                aria-label={t.drivingDirections}
+              >
+                <MdDirectionsCar className="w-6 h-6" />
+              </a>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+// To avoid breaking changes, we'll keep the old component name but use the new implementation.
+const KioskPanel = KioskPanel_NEW;
 
 const App = () => {
   const [language, setLanguage] = useState("en");
@@ -533,7 +544,7 @@ const App = () => {
       );
     if (filteredKiosks.length > 0) {
       return (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {filteredKiosks.map((kiosk) => (
             <KioskPanel
               key={kiosk.id}
@@ -566,14 +577,16 @@ const App = () => {
   return (
     <div className="container mx-auto max-w-2xl p-4 relative">
       <LanguageSelector language={language} setLanguage={setLanguage} />
-      <header className="text-center my-6">
+      <header className="text-center my-8">
         <img
           src={logoImage}
           alt="Station Locator Logo"
-          className="w-24 mx-auto mb-4"
+          className="w-24 h-24 mx-auto mb-4"
         />
-        <h1 className="text-3xl font-bold text-gray-900">{t.title}</h1>
-        <p className="text-md text-gray-600 mt-1">{t.subtitle}</p>
+        <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+          {t.title}
+        </h1>
+        <p className="text-lg text-gray-600 mt-2">{t.subtitle}</p>
       </header>
 
       {/* QR-mode driving toggle */}
@@ -582,7 +595,7 @@ const App = () => {
           <label className="inline-flex items-center gap-2 text-sm text-gray-600">
             <input
               type="checkbox"
-              className="rounded border-gray-300"
+              className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
               checked={showDriving}
               onChange={(e) => setShowDriving(e.target.checked)}
             />
