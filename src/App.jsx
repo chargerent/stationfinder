@@ -4,6 +4,7 @@ import {
   MdDirectionsCar,
   MdLocationOn,
 } from "react-icons/md";
+import logoImage from "./assets/logo.png";
 
 // --- Configuration ---
 const KIOSK_API_ENDPOINT = "/api/public/locations";
@@ -217,7 +218,7 @@ const SearchControls = ({ onSearch, isLoading, t }) => {
       </div>
       <button
         onClick={handleGpsSearchClick}
-        className="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-md shadow hover:bg-green-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
+        className="w-full px-6 h-12 bg-green-600 text-white font-semibold rounded-md shadow hover:bg-green-700 disabled:bg-gray-400 flex items-center justify-center gap-2 text-center"
         disabled={isLoading}
       >
         <MdLocationOn className="w-5 h-5" />
@@ -342,7 +343,7 @@ const KioskPanel = ({ kiosk, t, language, showDriving }) => {
               <span className={`block text-2xl font-bold ${chargerColor}`}>
                 {chargerCount}
               </span>
-              <span className="block text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <span className="block text-xs font-medium text-gray-500 uppercase tracking-wide min-h-[2.5em] flex items-center justify-center">
                 {t.availableChargers}
               </span>
             </div>
@@ -350,7 +351,7 @@ const KioskPanel = ({ kiosk, t, language, showDriving }) => {
               <span className="block text-2xl font-bold text-gray-700">
                 {kiosk.availableSlots}
               </span>
-              <span className="block text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <span className="block text-xs font-medium text-gray-500 uppercase tracking-wide min-h-[2.5em] flex items-center justify-center">
                 {t.availableSlots}
               </span>
             </div>
@@ -567,7 +568,7 @@ const App = () => {
       <LanguageSelector language={language} setLanguage={setLanguage} />
       <header className="text-center my-6">
         <img
-          src="/logo.png"
+          src={logoImage}
           alt="Station Locator Logo"
           className="w-24 mx-auto mb-4"
         />
