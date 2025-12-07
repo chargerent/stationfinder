@@ -101,7 +101,7 @@ const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
   const R = 3958.8; // miles
   const toRad = (deg) => (deg * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
+  const dLon = toRad(lat2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
@@ -161,9 +161,9 @@ const SearchControls = ({ onSearch, isLoading, t }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-      <form onSubmit={handleZipSearchSubmit}>
-        <div className="mb-3">
+    <div className="w-full bg-white p-4 rounded-lg shadow-md mb-6">
+      <form onSubmit={handleZipSearchSubmit} className="space-y-3">
+        <div>
           <label
             htmlFor="country-select"
             className="block text-sm font-medium text-gray-700 mb-1"
@@ -182,26 +182,28 @@ const SearchControls = ({ onSearch, isLoading, t }) => {
             <option value="fr">France</option>
           </select>
         </div>
-        <div className="mb-3">
+
+        <div>
           <label
             htmlFor="zipcode-input"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             {t.postalCodeLabel}
           </label>
-          <div className="flex gap-2">
+          {/* Fixed layout: input flexes, button has fixed column width */}
+          <div className="grid grid-cols-[minmax(0,1fr)_140px] gap-2">
             <input
               id="zipcode-input"
               type="text"
               value={zipCode}
               onChange={(e) => setZipCode(e.target.value)}
               placeholder={t.placeholders[country] || "Enter postal code"}
-              className="flex-grow px-4 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
               disabled={isLoading}
             />
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md shadow hover:bg-blue-700 disabled:bg-gray-400"
+              className="w-full px-4 py-3 bg-blue-600 text-white text-sm font-semibold rounded-md shadow hover:bg-blue-700 disabled:bg-gray-400"
               disabled={isLoading}
             >
               {t.searchButton}
@@ -209,6 +211,7 @@ const SearchControls = ({ onSearch, isLoading, t }) => {
           </div>
         </div>
       </form>
+
       <div className="relative flex items-center my-4">
         <div className="flex-grow border-t border-gray-200" />
         <span className="flex-shrink mx-2 text-gray-400 text-sm">
@@ -216,9 +219,10 @@ const SearchControls = ({ onSearch, isLoading, t }) => {
         </span>
         <div className="flex-grow border-t border-gray-200" />
       </div>
+
       <button
         onClick={handleGpsSearchClick}
-        className="w-full px-6 h-12 bg-green-600 text-white font-semibold rounded-md shadow hover:bg-green-700 disabled:bg-gray-400 flex items-center justify-center gap-2 text-center"
+        className="w-full px-6 h-12 bg-green-600 text-white text-sm font-semibold rounded-md shadow hover:bg-green-700 disabled:bg-gray-400 flex items-center justify-center gap-2 text-center"
         disabled={isLoading}
       >
         <MdLocationOn className="w-5 h-5" />
@@ -284,7 +288,7 @@ const KioskPanel_NEW = ({ kiosk, t, language, showDriving }) => {
     : "text-green-600";
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200/80 transition-all hover:shadow-lg hover:border-gray-300">
+    <div className="w-full bg-white rounded-xl shadow-md overflow-hidden border border-gray-200/80 transition-all hover:shadow-lg hover:border-gray-300">
       {/* Main Info Section */}
       <div className="p-5">
         <div className="flex justify-between items-start gap-4">
@@ -300,7 +304,7 @@ const KioskPanel_NEW = ({ kiosk, t, language, showDriving }) => {
             </p>
           </div>
           {distanceValue !== null && (
-            <span className="flex-shrink-0 text-sm font-semibold text-blue-800 bg-blue-100 px-3 py-1.5 rounded-full whitespace-nowrap">
+            <span className="flex-shrink-0 text-sm font-semibold text-blue-800 bg-blue-100 px-3 py-1.5 rounded-full">
               {distanceValue.toFixed(1)} {unit}
             </span>
           )}
@@ -370,7 +374,7 @@ const KioskPanel_NEW = ({ kiosk, t, language, showDriving }) => {
   );
 };
 
-// To avoid breaking changes, we'll keep the old component name but use the new implementation.
+// Alias to keep old name
 const KioskPanel = KioskPanel_NEW;
 
 const App = () => {
@@ -384,7 +388,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [isQrSearch, setIsQrSearch] = useState(false);
-  const [showDriving, setShowDriving] = useState(true); // toggle for driving directions
+  const [showDriving, setShowDriving] = useState(true);
   const [drivingParamExists, setDrivingParamExists] = useState(false);
 
   useEffect(() => {
@@ -423,7 +427,6 @@ const App = () => {
         }
         setLatestTimestamp(now);
 
-        // 🔹 10-day filter instead of 30
         const tenDaysAgo = new Date(now);
         tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
         const recentKiosks = data.filter((kiosk) => {
@@ -575,41 +578,48 @@ const App = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-2xl p-4 relative">
-      <LanguageSelector language={language} setLanguage={setLanguage} />
-      <header className="text-center my-8">
-        <img
-          src={logoImage}
-          alt="Station Locator Logo"
-          className="w-24 h-24 mx-auto mb-4"
-        />
-        <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
-          {t.title}
-        </h1>
-        <p className="text-lg text-gray-600 mt-2">{t.subtitle}</p>
-      </header>
+    <div className="min-h-screen flex justify-center">
+      {/* This width is now hard-locked; adjust 420px up/down if you want */}
+      <div className="w-[420px] p-4 relative">
+        <LanguageSelector language={language} setLanguage={setLanguage} />
+        <header className="text-center my-8">
+          <img
+            src={logoImage}
+            alt="Station Locator Logo"
+            className="w-24 h-24 mx-auto mb-4"
+          />
+          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+            {t.title}
+          </h1>
+          <p className="text-lg text-gray-600 mt-2">{t.subtitle}</p>
+        </header>
 
-      {/* QR-mode driving toggle */}
-      {isQrSearch && !drivingParamExists && (
-        <div className="flex justify-center items-center mb-4">
-          <label className="inline-flex items-center gap-2 text-sm text-gray-600">
-            <input
-              type="checkbox"
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
-              checked={showDriving}
-              onChange={(e) => setShowDriving(e.target.checked)}
-            />
-            <span>{t.showDrivingToggleLabel}</span>
-          </label>
-        </div>
-      )}
-
-      <main>
-        {!isQrSearch && (
-          <SearchControls onSearch={handleSearch} isLoading={isLoading} t={t} />
+        {/* QR-mode driving toggle */}
+        {isQrSearch && !drivingParamExists && (
+          <div className="flex justify-center items-center mb-4">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-600">
+              <input
+                type="checkbox"
+                className="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+                checked={showDriving}
+                onChange={(e) => setShowDriving(e.target.checked)}
+              />
+              <span>{t.showDrivingToggleLabel}</span>
+            </label>
+          </div>
         )}
-        <div className="results-area mt-6">{renderContent()}</div>
-      </main>
+
+        <main>
+          {!isQrSearch && (
+            <SearchControls
+              onSearch={handleSearch}
+              isLoading={isLoading}
+              t={t}
+            />
+          )}
+          <div className="results-area mt-6">{renderContent()}</div>
+        </main>
+      </div>
     </div>
   );
 };
